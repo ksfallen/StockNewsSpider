@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+    http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd"    default-autowire="byName" default-lazy-init="false">
+	<!-- 启动调度 -->
+	<bean id="start" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+	  <property name="triggers">
+	    <list>
+	      	<ref bean="titleJobTrigger"/>
+	      	<ref bean="stockTitleJobTrigger"/>
+	      	<ref bean="contentJobTrigger"/>
+	      	<ref bean="lcsTrigger"/> 
+	      	<ref bean="marketNewsJobTrigger"/>
+	      	<ref bean="publicNewsJobTrigger"/>
+	    </list>
+	  </property>
+	</bean>
+	
+	<!-- 资讯marketNews抓取 -->
+	<bean id="publicNewsTask" class="com.cairenhui.news.spider.task.PublicNewsTask"></bean>
+	
+	<bean id="publicNewsSpider" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">  
+	    <property name="targetObject" ref="publicNewsTask"/>  
+	    <property name="targetMethod" value="crawlerNews"/>  
+	    <property name="concurrent" value="false"/>
+	</bean>
+	<bean id="publicNewsJobTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">  
+	    <property name="jobDetail" ref="publicNewsSpider"/>  
+	    <property name="cronExpression" value="0 0/5 * * * ?" />  
+	</bean>
+	
+	<!-- 资讯marketNews抓取 -->
+	<bean id="marketNewsTask" class="com.cairenhui.news.spider.task.MarketNewsTask"></bean>
+	
+	<bean id="marketNewsSpider" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">  
+	    <property name="targetObject" ref="marketNewsTask"/>  
+	    <property name="targetMethod" value="crawlerNews"/>  
+	    <property name="concurrent" value="false"/>
+	</bean>
+	<bean id="marketNewsJobTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">  
+	    <property name="jobDetail" ref="marketNewsSpider"/>  
+	    <property name="cronExpression" value="0 0/5 * * * ?" />  
+	</bean>
+	
+	<!-- 资讯url title抓取 -->
+	<bean id="titleTask" class="com.cairenhui.news.spider.task.TitleTask"></bean>
+	
+	<bean id="titleSpider" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">  
+	    <property name="targetObject" ref="titleTask"/>  
+	    <property name="targetMethod" value="process"/>  
+	    <property name="concurrent" value="false"/>
+	</bean>
+	<bean id="titleJobTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">  
+	    <property name="jobDetail" ref="titleSpider"/>  
+	    <!-- 十分钟即可 -->
+	    <property name="cronExpression" value="0 0/10 * * * ?" />  
+	</bean>
+	
+	<!-- 资讯内容下载(与个股无关) -->
+	<bean id="contentTask" class="com.cairenhui.news.spider.task.ContentTask">
+		<property name="threadCount" value="15" />
+	</bean>
+	
+	<bean id="contentSpider" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">  
+	    <property name="targetObject" ref="contentTask"/>  
+	    <property name="targetMethod" value="process"/>  
+	    <property name="concurrent" value="false"/>
+	</bean>
+	<bean id="contentJobTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">  
+	    <property name="jobDetail" ref="contentSpider"/>
+	    <property name="cronExpression" value="0 * * * * ?" />  
+	</bean>
+	
+	<!-- 个股资讯url获取 -->
+	<bean id="stockTitleTask" class="com.cairenhui.news.spider.task.StockTitleTask">
+		<property name="threadCount" value="15" />
+	</bean>
+	
+	<bean id="stockTitleSpider" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">  
+	    <property name="targetObject" ref="stockTitleTask"/>  
+	    <property name="targetMethod" value="process"/>  
+	    <property name="concurrent" value="false"/>
+	</bean>
+	<bean id="stockTitleJobTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">  
+	    <property name="jobDetail" ref="stockTitleSpider"/>
+	    <!-- 十分钟即可 -->
+	    <property name="cronExpression" value="0 0/10 * * * ?" />  
+	</bean>
+	
+	<!-- 新闻标题相似性检测任务 -->
+	<bean id="lcsTask" class="com.cairenhui.news.spider.task.LCSTask"></bean>
+
+	<bean id="lcsDetail" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="lcsTask"/>
+		<property name="targetMethod" value="doWork"/>  
+		<property name="concurrent" value="false"/>
+	</bean>
+
+	<bean id="lcsTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail" ref="lcsDetail"/>  
+	    <property name="cronExpression" value="0 0/10 * * * ?" />  
+	</bean>
+	
+</beans>

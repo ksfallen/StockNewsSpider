@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap SYSTEM "sql-map-2.dtd">
+<sqlMap namespace="NewsTitle" dataSource="vstockDataSource">
+    <typeAlias alias="newsTitle" type="com.cairenhui.news.spider.model.NewsTitle"/>
+   
+    <resultMap id="newsTitleResult" class="newsTitle">
+        <result property="id" column="id"/>
+        <result property="stockCode" column="stock_code"/>
+        <result property="stockMarketType" column="stock_market_type"/>
+        <result property="title" column="title"/>
+        <result property="url" column="url"/>
+        <result property="type" column="type"/>
+        <result property="source" column="source"/>
+        <result property="pubDate" column="pub_date"/>
+        <result property="flag" column="flag"/>
+        <result property="level" column="level"/>
+    </resultMap>
+
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="commonColumns">
+	    <![CDATA[
+        	id ,
+        	stock_code ,
+        	stock_market_type ,
+        	title ,
+        	url ,
+        	type ,
+        	source ,
+        	pub_date ,
+        	level ,
+        	flag 
+	    ]]>
+	</sql>
+	<sql id="dynamicUpdate">
+	  <dynamic prepend=" ">
+	       <isNotNull prepend="," property="stockCode">
+	             stock_code = #stockCode#
+	       </isNotNull>
+	       <isNotNull prepend="," property="stockMarketType">
+	             stock_market_type = #stockMarketType#
+	       </isNotNull>
+	       <isNotNull prepend="," property="title">
+	             title = #title#
+	       </isNotNull>
+	       <isNotNull prepend="," property="url">
+	             url = #url#
+	       </isNotNull>
+	       <isNotNull prepend="," property="type">
+	             type = #type#
+	       </isNotNull>
+	       <isNotNull prepend="," property="source">
+	             source = #source#
+	       </isNotNull>
+	       <isNotNull prepend="," property="pubDate">
+	             pub_date = #pubDate#
+	       </isNotNull>
+	       <isNotNull prepend="," property="flag">
+	             flag = #flag#
+	       </isNotNull>
+	    </dynamic>	
+	</sql>
+	
+    <insert id="insert" parameterClass="newsTitle">
+    <![CDATA[
+        INSERT INTO cairh_news_title (
+        	id ,
+        	stock_code ,
+        	stock_market_type ,
+        	title ,
+        	url ,
+        	type ,
+        	source ,
+        	pub_date ,
+        	flag ,
+        	level
+        ) VALUES (
+        	#id# ,
+        	#stockCode# ,
+        	#stockMarketType# ,
+        	#title# ,
+        	#url# ,
+        	#type# ,
+        	#source# ,
+        	#pubDate# ,
+        	#flag# ,
+        	#level#
+        )
+    ]]>
+    <!--
+    mysql:		type="post" SELECT  select last_insert_id()
+    sqlserver:	type="post" SELECT  @@identity  AS  ID
+    oracle:		type="pre" 	SELECT  sequenceName.nextval AS ID FROM DUAL
+    DB2:		type="pre"	values nextval for sequenceName
+    -->
+        <selectKey resultClass="java.lang.Long" type="post" keyProperty="id" >
+            select last_insert_id()
+        </selectKey>
+    </insert>
+
+    <update id="update" parameterClass="newsTitle">
+        UPDATE cairh_news_title SET <include refid="dynamicUpdate"/>
+	   <![CDATA[ WHERE 
+	        id = #id# 
+    ]]>
+    </update>
+
+    <delete id="delete" parameterClass="java.lang.Long" isKey="true">
+    <![CDATA[
+        delete from cairh_news_title where
+        id = #id# 
+    ]]>
+    </delete>
+    
+	<delete id="deleteByUrl" parameterClass="java.lang.String" isKey="true">
+    <![CDATA[
+        delete from cairh_news_title where
+        url = #url# 
+    ]]>
+    </delete>
+    
+    <select id="getById" resultMap="newsTitleResult" isKey="true">
+	    select <include refid="commonColumns"/>
+	    <![CDATA[ from cairh_news_title where 
+		        id = #id# 
+	    ]]>
+    </select>
+        
+    <select id="findStockNewsTitleByTime" resultMap="newsTitleResult" isKey="true">
+	    select <include refid="commonColumns"/>
+	    <![CDATA[ from cairh_news_title 
+	    		  where pub_date <= #end#
+	    		  and pub_date >= #begin#
+	    		  and type = 1
+	    ]]>
+    </select>
+        
+    <select id="findByStartEndId" resultClass="java.lang.Integer" isKey="true">
+	    select <include refid="commonColumns"/>
+	    <![CDATA[ from cairh_news_title 
+	      		  where id >= #start# 
+	      		  and id < #end#
+	    ]]>
+    </select>
+    
+    <select id="getMaxId" resultClass="java.lang.Integer" isKey="true">
+	    <![CDATA[ 
+	    		select max(id)
+	    		from cairh_news_title
+	    ]]>
+    </select>
+        
+    <select id="findNewsTitleByTime" resultMap="newsTitleResult" isKey="true">
+	    select <include refid="commonColumns"/>
+	    <![CDATA[ from cairh_news_title 
+	    		  where pub_date <= #end#
+	    		  and pub_date >= #begin#
+	    		  and stock_code is null
+		           
+	    ]]>
+    </select>
+        
+    <select id="findNewsTitle" resultMap="newsTitleResult" isKey="true">
+	    select <include refid="commonColumns"/>
+	    <![CDATA[ from cairh_news_title 
+	      		  where flag = #flag# 
+	      		  order by id
+	      		  limit $limit$
+	    ]]>
+    </select>
+    
+    <select id="getByStockCodeAndTime" resultMap="newsTitleResult" isKey="true">
+	    select <include refid="commonColumns"/>
+	    <![CDATA[ from cairh_news_title 
+	      		  where stock_code = #stockCode# and pub_date = #time# and title = #title# 
+	      		  limit 1
+	    ]]>
+    </select>
+
+	<sql id="dynamicWhere">
+	    <dynamic prepend="WHERE">
+	       <isNotEmpty prepend="AND" property="id">
+	             id = #id#
+	       </isNotEmpty>
+	       <isNotEmpty prepend="AND" property="stockCode">
+	             stock_code = #stockCode#
+	       </isNotEmpty>
+	       <isNotEmpty prepend="AND" property="stockMarketType">
+	             stock_market_type = #stockMarketType#
+	       </isNotEmpty>
+	       <isNotEmpty prepend="AND" property="title">
+	             title = #title#
+	       </isNotEmpty>
+	       <isNotEmpty prepend="AND" property="url">
+	             url = #url#
+	       </isNotEmpty>
+	       <isNotEmpty prepend="AND" property="type">
+	             type = #type#
+	       </isNotEmpty>
+	       <isNotEmpty prepend="AND" property="source">
+	             source = #source#
+	       </isNotEmpty>
+	       <isNotEmpty prepend="AND" property="pubDate">
+	             pub_date = #pubDate#
+	       </isNotEmpty>
+	       <isNotEmpty prepend="AND" property="flag">
+	             flag = #flag#
+	       </isNotEmpty>
+	    </dynamic>	
+	</sql>
+	
+    <!--
+    	分页查询已经使用Dialect进行分页,也可以不使用Dialect直接编写分页
+    	因为分页查询将传 #offset#,#pageSize#,#lastRows# 三个参数,不同的数据库可以根于此三个参数属性应用不同的分页实现
+    -->
+    <select id="pageSelect_count" resultClass="java.lang.Integer">
+    	<![CDATA[ select count(*) from cairh_news_title ]]>
+		<include refid="dynamicWhere"/>    
+    </select>
+    <select id="pageSelect" resultMap="newsTitleResult">
+    	select <include refid="commonColumns"/>
+	    <![CDATA[ from cairh_news_title]]>
+		<include refid="dynamicWhere"/>
+		<dynamic prepend="ORDER BY">
+			<isNotEmpty property="sortColumns">$sortColumns$</isNotEmpty>
+		</dynamic>
+    </select>
+
+</sqlMap>

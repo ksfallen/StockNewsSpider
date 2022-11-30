@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	 ====================================================================== 
+     2011-09-05   wanghh                                                               
+     ====================================================================== 
+-->
+<project name="UTF8" default="createTest" basedir="./">
+	<description>StockNews</description>
+	<target name="init">
+		<tstamp/>
+		<property file="${basedir}/build_source.properties" />
+	</target>	
+
+	<target name="createTest" depends="init">
+		<!-- 拷贝源代码 -->
+        <copy todir="${build.dir}/src/java" overwrite="true">
+        	<fileset dir="${base.dir}/src">
+        		<include name="com"/>
+        		<include name="com/"/>
+        		<include name="com/*"/>
+        		<exclude name="*.*"/>
+        	</fileset>
+        </copy>
+		<!-- 拷贝配置文件 -->
+        <copy todir="${build.dir}/src/conf" overwrite="true">
+        	<fileset dir="${base.dir}/resource">
+				<include name="**/*"/>
+        	</fileset>
+        </copy>	
+		<!-- 拷贝lib -->
+        <copy todir="${build.dir}" overwrite="true">
+        	<fileset dir="${base.dir}">
+        		<include name="lib/*"/>
+        	</fileset>
+        </copy>
+	</target>
+</project>

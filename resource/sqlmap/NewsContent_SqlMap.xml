@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap SYSTEM "sql-map-2.dtd">
+<sqlMap namespace="NewsContent" dataSource="vstockDataSource">
+    <typeAlias alias="newsContent" type="com.cairenhui.news.spider.model.NewsContent"/>
+   
+    <resultMap id="newsContentResult" class="newsContent">
+        <result property="id" column="id"/>
+        <result property="titleId" column="title_id"/>
+        <result property="author" column="author"/>
+        <result property="pubDate" column="pub_date"/>
+        <result property="title" column="title"/>
+        <result property="content" column="content"/>
+        <result property="source" column="source"/>
+    </resultMap>
+
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="commonColumns">
+	    <![CDATA[
+        	id ,
+        	title_id ,
+        	author ,
+        	pub_date ,
+        	title ,
+        	content ,
+        	source 
+	    ]]>
+	</sql>
+	<sql id="dynamicUpdate">
+	  <dynamic prepend=" ">
+	       <isNotNull prepend="," property="titleId">
+	             title_id = #titleId#
+	       </isNotNull>
+	       <isNotNull prepend="," property="author">
+	             author = #author#
+	       </isNotNull>
+	       <isNotNull prepend="," property="pubDate">
+	             pub_date = #pubDate#
+	       </isNotNull>
+	       <isNotNull prepend="," property="title">
+	             title = #title#
+	       </isNotNull>
+	       <isNotNull prepend="," property="content">
+	             content = #content#
+	       </isNotNull>
+	       <isNotNull prepend="," property="source">
+	             source = #source#
+	       </isNotNull>
+	    </dynamic>	
+	</sql>
+	
+    <insert id="insert" parameterClass="newsContent">
+    <![CDATA[
+        INSERT INTO cairh_news_content (
+        	id ,
+        	title_id ,
+        	author ,
+        	pub_date ,
+        	title ,
+        	content ,
+        	source 
+        ) VALUES (
+        	#id# ,
+        	#titleId# ,
+        	#author# ,
+        	#pubDate# ,
+        	#title# ,
+        	#content# ,
+        	#source# 
+        )
+    ]]>
+    <!--
+    mysql:		type="post" SELECT  select last_insert_id()
+    sqlserver:	type="post" SELECT  @@identity  AS  ID
+    oracle:		type="pre" 	SELECT  sequenceName.nextval AS ID FROM DUAL
+    DB2:		type="pre"	values nextval for sequenceName
+    -->
+        <selectKey resultClass="java.lang.Long" type="post" keyProperty="id" >
+            select last_insert_id()
+        </selectKey>
+    </insert>
+
+    <update id="update" parameterClass="newsContent">
+        UPDATE cairh_news_content SET <include refid="dynamicUpdate"/>
+	   <![CDATA[ WHERE 
+	        id = #id# 
+    ]]>
+    </update>
+
+    <delete id="delete" parameterClass="java.lang.Long" isKey="true">
+    <![CDATA[
+        delete from cairh_news_content where
+        id = #id# 
+    ]]>
+    </delete>
+    
+    <select id="getById" resultMap="newsContentResult" isKey="true">
+	    select <include refid="commonColumns"/>
+	    <![CDATA[ from cairh_news_content where 
+		        id = #id# 
+	    ]]>
+    </select>
+
+	<sql id="dynamicWhere">
+	    <dynamic prepend="WHERE">
+	       <isNotEmpty prepend="AND" property="id">
+	             id = #id#
+	       </isNotEmpty>
+	       <isNotEmpty prepend="AND" property="titleId">
+	             title_id = #titleId#
+	       </isNotEmpty>
+	       <isNotEmpty prepend="AND" property="author">
+	             author = #author#
+	       </isNotEmpty>
+	       <isNotEmpty prepend="AND" property="pubDate">
+	             pub_date = #pubDate#
+	       </isNotEmpty>
+	       <isNotEmpty prepend="AND" property="title">
+	             title = #title#
+	       </isNotEmpty>
+	       <isNotEmpty prepend="AND" property="content">
+	             content = #content#
+	       </isNotEmpty>
+	       <isNotEmpty prepend="AND" property="source">
+	             source = #source#
+	       </isNotEmpty>
+	    </dynamic>	
+	</sql>
+	
+    <!--
+    	分页查询已经使用Dialect进行分页,也可以不使用Dialect直接编写分页
+    	因为分页查询将传 #offset#,#pageSize#,#lastRows# 三个参数,不同的数据库可以根于此三个参数属性应用不同的分页实现
+    -->
+    <select id="pageSelect_count" resultClass="java.lang.Integer">
+    	<![CDATA[ select count(*) from cairh_news_content ]]>
+		<include refid="dynamicWhere"/>    
+    </select>
+    <select id="pageSelect" resultMap="newsContentResult">
+    	select <include refid="commonColumns"/>
+	    <![CDATA[ from cairh_news_content]]>
+		<include refid="dynamicWhere"/>
+		<dynamic prepend="ORDER BY">
+			<isNotEmpty property="sortColumns">$sortColumns$</isNotEmpty>
+		</dynamic>
+    </select>
+
+</sqlMap>

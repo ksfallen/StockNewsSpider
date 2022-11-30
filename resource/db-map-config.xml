@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dbMapConfig>
+	<!-- 不同数据源配置 dbClassName：对应集合的类名 morphiaName:morphia名(规则为数据集合空间名+Morphia) -->
+	<!-- 用户 -->
+	<dbMap modelClassName="com.cairenhui.sns.model.user.UserPresence" morphiaName="userMorphia"/>
+	<dbMap modelClassName="com.cairenhui.sns.model.user.UserProfile" morphiaName="userMorphia"/>
+	<dbMap modelClassName="com.cairenhui.sns.model.user.InvitationEmail" morphiaName="userMorphia"/>
+	<dbMap modelClassName="com.cairenhui.sns.model.user.UserInvitation" morphiaName="userMorphia"/>
+	<dbMap modelClassName="com.cairenhui.sns.model.user.VstockZone" morphiaName="userMorphia"/>
+	<dbMap modelClassName="com.cairenhui.sns.model.user.UserMsnContact" morphiaName="userMorphia"/>
+	<dbMap modelClassName="com.cairenhui.sns.model.user.UserRegInfo" morphiaName="userMorphia"/>
+	<dbMap modelClassName="com.cairenhui.sns.model.user.VstockSign" morphiaName="userMorphia"/>
+	<dbMap modelClassName="com.cairenhui.sns.model.user.UserSnsConnect" morphiaName="userMorphia"/>
+	<dbMap modelClassName="com.cairenhui.sns.model.user.PointCategory" morphiaName="userMorphia"/>
+	<dbMap modelClassName="com.cairenhui.sns.model.user.UserDayPoint" morphiaName="userMorphia"/>
+	<dbMap modelClassName="com.cairenhui.sns.model.user.UserPointLog" morphiaName="userMorphia"/>
+	
+	<!-- 股票 -->
+	<dbMap modelClassName="com.cairenhui.sns.model.stock.StockProfile" morphiaName="stockMorphia"/>
+	<dbMap modelClassName="com.cairenhui.sns.model.stock.StockPresence" morphiaName="stockMorphia"/>
+	<dbMap modelClassName="com.cairenhui.sns.model.stock.OptionalStock" morphiaName="stockMorphia"/>
+	<dbMap modelClassName="com.cairenhui.sns.model.stock.SagStock" morphiaName="stockMorphia"/>
+	<dbMap modelClassName="com.cairenhui.sns.model.stock.SagDepositStock" morphiaName="stockMorphia"/>
+	
+	<!-- 威望 -->
+	<dbMap modelClassName="com.cairenhui.sns.model.prestige.Prestige" morphiaName="prestigeMorphia"/>
+	<dbMap modelClassName="com.cairenhui.sns.model.prestige.UserPrestigeLog" morphiaName="prestigeMorphia"/>
+	<dbMap modelClassName="com.cairenhui.sns.model.prestige.PrestigeType" morphiaName="prestigeMorphia"/>
+	<dbMap modelClassName="com.cairenhui.sns.model.prestige.UserPrestige" morphiaName="prestigeMorphia"/>
+	
+	<!-- 用户关系 -->
+	<dbMap modelClassName="com.cairenhui.sns.model.relation.UserRelation" morphiaName="relationMorphia"/>
+	<dbMap modelClassName="com.cairenhui.sns.model.relation.GhostRelation" morphiaName="relationMorphia"/>
+	<dbMap modelClassName="com.cairenhui.sns.model.relation.PromotionUser" morphiaName="relationMorphia"/>
+	<dbMap modelClassName="com.cairenhui.sns.model.relation.UserFriend" morphiaName="relationMorphia"/>
+	
+	<!-- 工具 -->
+	<dbMap modelClassName="com.cairenhui.sns.model.utils.UnistringFeed" morphiaName="utilsMorphia"/>
+	<dbMap modelClassName="com.cairenhui.sns.model.utils.Sequence" morphiaName="utilsMorphia"/>
+	<dbMap modelClassName="com.cairenhui.sns.model.utils.SeoMeta" morphiaName="utilsMorphia"/>
+	
+	<!-- 微博 -->
+	<dbMap modelClassName="com.cairenhui.sns.model.miniblog.Miniblog" morphiaName="miniblogMorphia"/>
+	<dbMap modelClassName="com.cairenhui.sns.model.miniblog.MiniblogComments" morphiaName="miniblogMorphia"/>
+	<dbMap modelClassName="com.cairenhui.sns.model.miniblog.MiniblogRecommend" morphiaName="miniblogMorphia"/>
+	<dbMap modelClassName="com.cairenhui.sns.model.miniblog.Favorite" morphiaName="miniblogMorphia"/>
+	<dbMap modelClassName="com.cairenhui.sns.model.miniblog.ContentUrl" morphiaName="miniblogMorphia"/>
+	<dbMap modelClassName="com.cairenhui.sns.model.miniblog.At" morphiaName="miniblogMorphia"/>
+	<dbMap modelClassName="com.cairenhui.sns.model.miniblog.Topic" morphiaName="miniblogMorphia"/>
+	<dbMap modelClassName="com.cairenhui.sns.model.miniblog.Talk" morphiaName="miniblogMorphia"/>
+	<dbMap modelClassName="com.cairenhui.sns.model.miniblog.TalkContent" morphiaName="miniblogMorphia"/>
+	<dbMap modelClassName="com.cairenhui.sns.model.miniblog.TalkGuestQustion" morphiaName="miniblogMorphia"/>
+	<dbMap modelClassName="com.cairenhui.sns.model.miniblog.MiniblogSalon" morphiaName="miniblogMorphia"/>
+	<dbMap modelClassName="com.cairenhui.sns.model.miniblog.MarketNews" morphiaName="miniblogMorphia"/>
+	
+	<!-- 消息 -->
+	<dbMap modelClassName="com.cairenhui.sns.model.message.Message" morphiaName="messageMorphia"/>
+	<dbMap modelClassName="com.cairenhui.sns.model.message.MessageCoversation" morphiaName="messageMorphia"/>
+	
+	<!-- 通知 -->
+	<dbMap modelClassName="com.cairenhui.sns.model.notification.MiniblogNotification" morphiaName="notificationMorphia"/>
+	<dbMap modelClassName="com.cairenhui.sns.model.notification.Notification" morphiaName="notificationMorphia"/>
+	<dbMap modelClassName="com.cairenhui.sns.model.notification.PrestigeNotification" morphiaName="notificationMorphia"/>
+	<dbMap modelClassName="com.cairenhui.sns.model.notification.SystemNotification" morphiaName="notificationMorphia"/>
+	
+	<!-- 博客 -->
+	<dbMap modelClassName="com.cairenhui.sns.model.blog.Blog" morphiaName="blogMorphia"/>
+		
+	<!-- 沙龙 -->
+	<dbMap modelClassName="com.cairenhui.sns.model.salon.SalonEvent" morphiaName="salonMorphia"/>
+	
+	<!-- Promotion -->
+	<dbMap modelClassName="com.cairenhui.sns.model.promotion.Promotion" morphiaName="promotionMorphia"/>
+	<dbMap modelClassName="com.cairenhui.sns.model.promotion.AdvPromotion" morphiaName="promotionMorphia"/>
+	<dbMap modelClassName="com.cairenhui.sns.model.promotion.PromotionStat" morphiaName="promotionMorphia"/>
+	<dbMap modelClassName="com.cairenhui.sns.model.promotion.FriendLink" morphiaName="promotionMorphia"/>
+	<dbMap modelClassName="com.cairenhui.sns.model.promotion.CoorperationMechanism" morphiaName="promotionMorphia"/>
+	
+	<!-- OAuth -->
+	<dbMap modelClassName="com.cairenhui.oauth.model.ApplicationProfile" morphiaName="oauthMorphia"/>
+	<dbMap modelClassName="com.cairenhui.oauth.model.UserAccessToken" morphiaName="oauthMorphia"/>
+</dbMapConfig>

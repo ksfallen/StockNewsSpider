@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap SYSTEM "sql-map-2.dtd">
+<sqlMap namespace="NewsStockProfile" dataSource="vstockDataSource">
+    <typeAlias alias="newsStockProfile" type="com.cairenhui.news.spider.model.NewsStockProfile"/>
+   
+    <resultMap id="newsStockProfileResult" class="newsStockProfile">
+        <result property="id" column="id"/>
+        <result property="stockCode" column="stock_code"/>
+        <result property="stockName" column="stock_name"/>
+        <result property="stockAsNames" column="stock_asNames"/>
+    </resultMap>
+
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="commonColumns">
+	    <![CDATA[
+        	id ,
+        	stock_code ,
+        	stock_name ,
+        	stock_asNames 
+	    ]]>
+	</sql>
+	<sql id="dynamicUpdate">
+	  <dynamic prepend=" ">
+	       <isNotNull prepend="," property="stockCode">
+	             stock_code = #stockCode#
+	       </isNotNull>
+	       <isNotNull prepend="," property="stockName">
+	             stock_name = #stockName#
+	       </isNotNull>
+	       <isNotNull prepend="," property="stockAsNames">
+	             stock_asNames = #stockAsNames#
+	       </isNotNull>
+	    </dynamic>	
+	</sql>
+	
+    <insert id="insert" parameterClass="newsStockProfile">
+    <![CDATA[
+        INSERT INTO cairh_stock_profile (
+        	id ,
+        	stock_code ,
+        	stock_name ,
+        	stock_asNames 
+        ) VALUES (
+        	#id# ,
+        	#stockCode# ,
+        	#stockName# ,
+        	#stockAsNames# 
+        )
+    ]]>
+    <!--
+    mysql:		type="post" SELECT  select last_insert_id()
+    sqlserver:	type="post" SELECT  @@identity  AS  ID
+    oracle:		type="pre" 	SELECT  sequenceName.nextval AS ID FROM DUAL
+    DB2:		type="pre"	values nextval for sequenceName
+    -->
+        <selectKey resultClass="java.lang.Integer" type="post" keyProperty="id" >
+            select last_insert_id()
+        </selectKey>
+    </insert>
+
+    <update id="update" parameterClass="newsStockProfile">
+        UPDATE cairh_stock_profile SET <include refid="dynamicUpdate"/>
+	   <![CDATA[ WHERE 
+	        id = #id# 
+    ]]>
+    </update>
+
+    <delete id="delete" parameterClass="java.lang.Integer" isKey="true">
+    <![CDATA[
+        delete from cairh_stock_profile where
+        id = #id# 
+    ]]>
+    </delete>
+    
+    <select id="getById" resultMap="newsStockProfileResult" isKey="true">
+	    select <include refid="commonColumns"/>
+	    <![CDATA[ from cairh_stock_profile where 
+		        id = #id# 
+	    ]]>
+    </select>
+    
+    <select id="findAll" resultMap="newsStockProfileResult" isKey="true">
+	    select <include refid="commonColumns"/>
+	    <![CDATA[ from cairh_stock_profile
+	    ]]>
+    </select>
+
+	<sql id="dynamicWhere">
+	    <dynamic prepend="WHERE">
+	       <isNotEmpty prepend="AND" property="id">
+	             id = #id#
+	       </isNotEmpty>
+	       <isNotEmpty prepend="AND" property="stockCode">
+	             stock_code = #stockCode#
+	       </isNotEmpty>
+	       <isNotEmpty prepend="AND" property="stockName">
+	             stock_name = #stockName#
+	       </isNotEmpty>
+	       <isNotEmpty prepend="AND" property="stockAsNames">
+	             stock_asNames = #stockAsNames#
+	       </isNotEmpty>
+	    </dynamic>	
+	</sql>
+	
+    <!--
+    	分页查询已经使用Dialect进行分页,也可以不使用Dialect直接编写分页
+    	因为分页查询将传 #offset#,#pageSize#,#lastRows# 三个参数,不同的数据库可以根于此三个参数属性应用不同的分页实现
+    -->
+    <select id="pageSelect_count" resultClass="java.lang.Integer">
+    	<![CDATA[ select count(*) from cairh_stock_profile ]]>
+		<include refid="dynamicWhere"/>    
+    </select>
+    <select id="pageSelect" resultMap="newsStockProfileResult">
+    	select <include refid="commonColumns"/>
+	    <![CDATA[ from cairh_stock_profile]]>
+		<include refid="dynamicWhere"/>
+		<dynamic prepend="ORDER BY">
+			<isNotEmpty property="sortColumns">$sortColumns$</isNotEmpty>
+		</dynamic>
+    </select>
+
+</sqlMap>

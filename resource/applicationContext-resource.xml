@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xmlns:aop="http://www.springframework.org/schema/aop"
+	   xmlns:tx="http://www.springframework.org/schema/tx"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd"
+	   default-autowire="byName" default-lazy-init="false">
+
+	<!-- 属性文件读入,使用rapid中的JdbcPlaceholderConfigurer则可以从数据库读取配置信息 -->
+	<bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list>
+				<value>classpath*:jdbc.properties</value>
+				<value>classpath*:mongodb.properties</value>
+			</list>
+		</property>
+	</bean>
+	
+	<!-- 新闻Master 配置 -->
+	<bean id="vstockDataSource" class="com.atomikos.jdbc.AtomikosDataSourceBean" init-method="init" destroy-method="close">  
+		<property name="uniqueResourceName">  
+			<value>mysql/master</value>  
+		</property>  
+		<property name="xaDataSourceClassName">  
+			<value>${jdbc.cairenhui.vstock.web.driver}</value>  
+		</property>  
+		<property name="xaProperties">  
+			<props>  
+				<prop key="URL">${jdbc.cairenhui.vstock.web.url}</prop>  
+				<prop key="user">${jdbc.cairenhui.vstock.web.username}</prop>  
+				<prop key="password">${jdbc.cairenhui.vstock.web.password}</prop>  
+			</props>  
+		</property>  
+		<property name="minPoolSize">  
+			<value>2</value>  
+		</property>  
+		<property name="maxPoolSize">  
+			<value>5</value>  
+		</property>  
+		<property name="maxIdleTime">  
+			<value>300</value>  
+		</property> 
+		<property name="testQuery">  
+			<value>SELECT 1</value>  
+		</property> 
+	</bean> 
+	
+
+	<!-- 炒股大赛Slave 配置  (vse_serials)-->	
+	<bean id="vstockSlaveDataSource" class="com.atomikos.jdbc.AtomikosDataSourceBean" init-method="init" destroy-method="close">  
+		<property name="uniqueResourceName">  
+			<value>mysql/slave</value>  
+		</property>  
+		<property name="xaDataSourceClassName">  
+			<value>${jdbc.slave.cairenhui.vstock.web.driver}</value>  
+		</property>  
+		<property name="xaProperties">  
+			<props>  
+				<prop key="URL">${jdbc.slave.cairenhui.vstock.web.url}</prop>  
+				<prop key="user">${jdbc.slave.cairenhui.vstock.web.username}</prop>  
+				<prop key="password">${jdbc.slave.cairenhui.vstock.web.password}</prop>  
+			</props>  
+		</property>  
+		<property name="minPoolSize">  
+			<value>1</value>  
+		</property>  
+		<property name="maxPoolSize">  
+			<value>3</value>  
+		</property>  
+		<property name="maxIdleTime">  
+			<value>300</value>  
+		</property> 
+		<property name="testQuery">  
+			<value>SELECT 1</value>  
+		</property> 
+	</bean>
+	
+	<!-- mongoDB -->
+	<bean id="mongoOptions" class="com.cairenhui.sns.base.BaseMongoOptions">
+		<constructor-arg index="0" type="int" value="${mongodb.cairh.sns.base.connectionsPerHost}"/>
+		<constructor-arg index="1" type="int" value="${mongodb.cairh.sns.base.threadsAllowedToBlockForConnectionMultiplier}"/>
+		<constructor-arg index="2" type="int" value="${mongodb.cairh.sns.base.connectTimeout}"/>
+		<constructor-arg index="3" type="int" value="${mongodb.cairh.sns.base.socketTimeout}"/>
+		<constructor-arg index="4" type="int" value="${mongodb.cairh.sns.base.maxWaitTime}"/>
+        <constructor-arg index="5" type="boolean" value="false"/>
+	</bean>
+	<bean id="basesMongo" class="com.cairenhui.sns.base.BaseMongo">
+		<constructor-arg value="${mongodb.cairh.sns.base.address}"/>
+        <constructor-arg value="${mongodb.cairh.sns.base.port}"/>
+        <constructor-arg ref="mongoOptions"/>
+	</bean>
+	
+	<!-- mongoDB_SlaveOk -->
+	<bean id="mongoOptionsSlaveOk" class="com.cairenhui.sns.base.BaseMongoOptions">
+		<constructor-arg index="0" type="int" value="${mongodb.cairh.sns.base.slaveOk.connectionsPerHost}"/>
+        <constructor-arg index="1" type="int" value="${mongodb.cairh.sns.base.slaveOk.threadsAllowedToBlockForConnectionMultiplier}"/>
+        <constructor-arg index="2" type="int" value="${mongodb.cairh.sns.base.connectTimeout}"/>
+   		<constructor-arg index="3" type="int" value="${mongodb.cairh.sns.base.socketTimeout}"/>
+        <constructor-arg index="4" type="int" value="${mongodb.cairh.sns.base.maxWaitTime}"/>
+        <constructor-arg index="5" type="boolean" value="true"/>
+        
+	</bean>
+    <bean id="mongoSlaveOk" class="com.cairenhui.sns.base.BaseMongo">
+        <constructor-arg value="${mongodb.cairh.sns.base.address}"/>
+        <constructor-arg value="${mongodb.cairh.sns.base.port}"/>
+        <constructor-arg ref="mongoOptionsSlaveOk"/>
+    </bean>
+	
+	<!-- 用户 -->
+	<bean id="userMorphia" class="com.cairenhui.sns.base.BaseMorphia">
+		<property name="dbName" value="user"/>
+		<property name="mongo" ref="basesMongo"/>
+	</bean>
+	
+	<bean id="stockMorphia" class="com.cairenhui.sns.base.BaseMorphia">
+		<property name="dbName" value="stock"/>
+		<property name="mongo" ref="basesMongo"/>
+	</bean>
+	<bean id="prestigeMorphia" class="com.cairenhui.sns.base.BaseMorphia">
+		<property name="dbName" value="prestige"/>
+		<property name="mongo" ref="basesMongo"/>
+	</bean>
+	<bean id="relationMorphia" class="com.cairenhui.sns.base.BaseMorphia">
+		<property name="dbName" value="relation"/>
+		<property name="mongo" ref="basesMongo"/>
+	</bean>
+	<bean id="utilsMorphia" class="com.cairenhui.sns.base.BaseMorphia">
+		<property name="dbName" value="utils"/>
+		<property name="mongo" ref="basesMongo"/>
+	</bean>
+	<bean id="miniblogMorphia" class="com.cairenhui.sns.base.BaseMorphia">
+		<property name="dbName" value="miniblog"/>
+		<property name="mongo" ref="basesMongo"/>
+	</bean>
+	<bean id="messageMorphia" class="com.cairenhui.sns.base.BaseMorphia">
+		<property name="dbName" value="message"/>
+		<property name="mongo" ref="basesMongo"/>
+	</bean>
+	<bean id="notificationMorphia" class="com.cairenhui.sns.base.BaseMorphia">
+		<property name="dbName" value="notification"/>
+		<property name="mongo" ref="basesMongo"/>
+	</bean>
+	<bean id="blogMorphia" class="com.cairenhui.sns.base.BaseMorphia">
+		<property name="dbName" value="blog"/>
+		<property name="mongo" ref="basesMongo"/>
+	</bean>
+	
+	<!-- Morphia slaveOk -->
+	<bean id="userMorphiaSlaveOk" class="com.cairenhui.sns.base.BaseMorphia">
+		<property name="dbName" value="user"/>
+		<property name="mongo" ref="mongoSlaveOk"/>
+		<property name="entityPackage" value="com.cairenhui.sns.model.user"/>
+	</bean>
+	<bean id="stockMorphiaSlaveOk" class="com.cairenhui.sns.base.BaseMorphia">
+		<property name="dbName" value="stock"/>
+		<property name="mongo" ref="mongoSlaveOk"/>
+		<property name="entityPackage" value="com.cairenhui.sns.model.stock"/>
+	</bean>
+	<bean id="prestigeMorphiaSlaveOk" class="com.cairenhui.sns.base.BaseMorphia">
+		<property name="dbName" value="prestige"/>
+		<property name="mongo" ref="mongoSlaveOk"/>
+		<property name="entityPackage" value="com.cairenhui.sns.model.prestige"/>
+	</bean>
+	<bean id="relationMorphiaSlaveOk" class="com.cairenhui.sns.base.BaseMorphia">
+		<property name="dbName" value="relation"/>
+		<property name="mongo" ref="mongoSlaveOk"/>
+		<property name="entityPackage" value="com.cairenhui.sns.model.relation"/>
+	</bean>
+	<bean id="utilsMorphiaSlaveOk" class="com.cairenhui.sns.base.BaseMorphia">
+		<property name="dbName" value="utils"/>
+		<property name="mongo" ref="mongoSlaveOk"/>
+		<property name="entityPackage" value="com.cairenhui.sns.model.utils"/>
+	</bean>
+	<bean id="miniblogMorphiaSlaveOk" class="com.cairenhui.sns.base.BaseMorphia">
+		<property name="dbName" value="miniblog"/>
+		<property name="mongo" ref="mongoSlaveOk"/>
+		<property name="entityPackage" value="com.cairenhui.sns.model.miniblog"/>
+	</bean>
+	<bean id="messageMorphiaSlaveOk" class="com.cairenhui.sns.base.BaseMorphia">
+		<property name="dbName" value="message"/>
+		<property name="mongo" ref="mongoSlaveOk"/>
+		<property name="entityPackage" value="com.cairenhui.sns.model.message"/>
+	</bean>
+	<bean id="notificationMorphiaSlaveOk" class="com.cairenhui.sns.base.BaseMorphia">
+		<property name="dbName" value="notification"/>
+		<property name="mongo" ref="mongoSlaveOk"/>
+		<property name="entityPackage" value="com.cairenhui.sns.model.notification"/>
+	</bean>
+	<bean id="blogMorphiaSlaveOk" class="com.cairenhui.sns.base.BaseMorphia">
+		<property name="dbName" value="blog"/>
+		<property name="mongo" ref="mongoSlaveOk"/>
+		<property name="entityPackage" value="com.cairenhui.sns.model.blog"/>
+	</bean>
+	<bean id="oauthMorphia" class="com.cairenhui.sns.base.BaseMorphia">
+		<property name="dbName" value="oauth"/>
+		<property name="mongo" ref="basesMongo"/>
+		<property name="entityPackage" value="com.cairenhui.oauth.model"/>
+	</bean>	
+	
+	<bean id="configUtilCrh" class="com.cairenhui.sns.util.ConfigUtil"></bean>
+	<bean id="crhSpringContext" class="com.cairenhui.sns.util.spring.SpringContext"></bean>
+</beans>
